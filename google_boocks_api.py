@@ -13,8 +13,8 @@ https://www.googleapis.com/books/v1/volumes?q=thema:finance
 '''
 
 """
-mail: raphael.zaehrer@gmail.com
-PW: Raphhhaaael14!
+mail: xxxx
+PW: xxxxx
 key : 75u5apwOgBLGVJZyWhmF0wGUTuuoe51O
 secret: qGeAcaesxaO7aJSj
 """
