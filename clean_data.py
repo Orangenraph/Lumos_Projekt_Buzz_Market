@@ -37,18 +37,21 @@ def clean_bee(df):
     df = df[~df["Area"].isin(to_drop)]
     dropped_rows = temp - df.shape[0]
 
-    print(f"\n{dropped_rows} rows were dropped. Countries (>10% missing): {to_drop}")
+    print(f"{dropped_rows} rows were dropped. Countries (>10% missing): {to_drop}")
 
     # fills NaN with mean value from country
     fill_values = df.groupby('Area')['Value'].transform('mean')
     df.loc[:, 'Value'] = df['Value'].fillna(fill_values)
 
-    # check for columns with missing values
-    for col in df.columns:
-        if df[col].isnull().any():
-            print(f"{col} has {df[col].isnull().sum()} null values")
+    # only pick the columns we need & rename
+    df = df[["Area", "Value", "Year", "Flag", "Flag Description"]].rename(columns={"Value": "Bee_Values"})
+
+    # typecast columns
+    df["Year"] = df["Year"].astype(int)
+    df["Bee_Values"] = df["Bee_Values"].astype(float)
 
     df.to_csv("./cleaned_data/cleaned_FAOSTAT_bees", index=False)
+    return df
 
 
 if __name__ == '__main__':
