@@ -6,7 +6,9 @@ def main():
     crops_df = pd.read_csv("./data/FAOSTAT_crops.csv")
     bloomberg_df = pd.read_csv("./data/Bloomberg_Commodity_Historical_Data.csv")
 
-    cleaned_bee_df = clean_bee(bee_df)
+    #cleaned_bee_df = clean_bee(bee_df)
+    cleaned_bloomberg_df = clean_bloomberg(bloomberg_df)
+
 
 
 
@@ -52,6 +54,19 @@ def clean_bee(df):
 
     df.to_csv("./cleaned_data/cleaned_FAOSTAT_bees", index=False)
     return df
+
+def clean_bloomberg(df):
+    ''' removes volume '''
+    df = df[["Date","Price","Open","High","Low","Change %"]].copy()
+    df["Date"] = pd.to_datetime(df["Date"])
+
+    df.to_csv("./cleaned_data/cleaned_Bloomberg", index=False)
+    return df
+
+
+
+def clean_crops(df):
+    ...
 
 
 if __name__ == '__main__':
