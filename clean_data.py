@@ -6,8 +6,9 @@ def main():
     crops_df = pd.read_csv("./data/FAOSTAT_crops.csv")
     bloomberg_df = pd.read_csv("./data/Bloomberg_Commodity_Historical_Data.csv")
 
-    #cleaned_bee_df = clean_bee(bee_df)
+    cleaned_bee_df = clean_bee(bee_df)
     cleaned_bloomberg_df = clean_bloomberg(bloomberg_df)
+    cleaned_crops_df = clean_crops(crops_df)
 
 
 
@@ -32,7 +33,7 @@ def clean_bee(df):
     missing_stats["missing_percent"] = round((missing_stats["missing"] / missing_stats["total_rows"]) * 100, 2)
 
 
-    # filter countries with 20% missing values
+    # filter countries with 10% missing values
     to_drop = missing_stats[missing_stats["missing_percent"] > 10]["Area"].tolist()
 
     temp = df.shape[0]
@@ -46,13 +47,13 @@ def clean_bee(df):
     df.loc[:, 'Value'] = df['Value'].fillna(fill_values)
 
     # only pick the columns we need & rename
-    df = df[["Area", "Value", "Year", "Flag", "Flag Description"]].rename(columns={"Value": "Bee_Values"})
+    df = df[["Area", "Value", "Year", "Flag Description"]].rename(columns={"Value": "Bee_Values"})
 
     # typecast columns
     df["Year"] = df["Year"].astype(int)
     df["Bee_Values"] = df["Bee_Values"].astype(float)
 
-    df.to_csv("./cleaned_data/cleaned_FAOSTAT_bees", index=False)
+    df.to_csv("./cleaned_data/cleaned_bees", index=False)
     return df
 
 def clean_bloomberg(df):
@@ -60,13 +61,50 @@ def clean_bloomberg(df):
     df = df[["Date","Price","Open","High","Low","Change %"]].copy()
     df["Date"] = pd.to_datetime(df["Date"])
 
-    df.to_csv("./cleaned_data/cleaned_Bloomberg", index=False)
+    df.to_csv("./cleaned_data/cleaned_bloomberg", index=False)
     return df
 
 
 
 def clean_crops(df):
-    ...
+
+    #only take columns we need
+    df = df[["Area","Item","Value", "Element", "Year","Flag Description"]].copy()
+
+    # replace 0 or None with NA
+    df["Value"] = df["Value"].apply(lambda x: np.nan if pd.isna(x) or x == 0 else x)
+
+    missing_stats = df.groupby(["Area", "Item"])["Value"].agg(
+        missing=lambda x: x.isnull().sum(),
+        not_missing=lambda x: x.notna().sum(),
+        total="count"
+    ).reset_index()
+
+    # calc percentage
+    missing_stats["missing_percent"] = round((missing_stats["missing"] / missing_stats["total"]) * 100, 2)
+
+    # find combinations of Area and Element with more 10% missing
+    to_drop = missing_stats[missing_stats["missing_percent"] > 10][["Area", "Item"]].values.tolist()
+
+    temp = df.shape[0]
+    df = df[~df.apply(lambda row: [row["Area"], row["Item"]] in to_drop, axis=1)]
+
+    dropped_rows = temp - df.shape[0]
+    print(f"{dropped_rows} rows were dropped. Area-Item (>10% missing): {to_drop}")
+
+    # fill missing values with mean value
+    fill_values = df.groupby(["Area", "Item"])['Value'].transform('mean')
+    df.loc[:, 'Value'] = df['Value'].fillna(fill_values)
+
+    #rename column
+    df = df.rename(columns={"Value": "Crop_Values"})
+
+    #convert data types
+    df["Year"] = df["Year"].astype(int)
+    df["Crop_Values"] = df["Crop_Values"].astype(float)
+
+    df.to_csv("./cleaned_data/cleaned_crops", index=False)
+    return df
 
 
 if __name__ == '__main__':
