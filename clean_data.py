@@ -52,12 +52,16 @@ def clean_bee(df):
     return df
 
 def clean_bloomberg(df):
-    ''' removes volume '''
     df = df[["Date","Price","Open","High","Low","Change %"]].copy()
     df["Date"] = pd.to_datetime(df["Date"])
     df["Year"] = df["Date"].dt.year
+
+    # calc mean and rounds by 2
     df = (df.groupby("Year")["Price"]).mean().reset_index()
     df["Price"] = df["Price"].round(2)
+
+    # calc % from prev. years
+    df["Price_Percentage_Change"] = df["Price"].pct_change().round(2) * 100
 
     df = df.rename(columns={"Price": "Commodity_Price"})
 
