@@ -61,7 +61,7 @@ def clean_bloomberg(df):
     df["Price"] = df["Price"].round(2)
 
     # calc % from prev. years
-    df["Price_Percentage_Change"] = df["Price"].pct_change().round(2) * 100
+    #df["Price_Percentage_Change"] = df["Price"].pct_change().round(2) * 100
 
     df = df.rename(columns={"Price": "Commodity_Price"})
 

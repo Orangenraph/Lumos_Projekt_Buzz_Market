@@ -1,18 +1,22 @@
 import pandas as pd
 import numpy as np
 
-from pandas.plotting import scatter_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 def main():
+    '''reads data'''
     df_bees = pd.read_csv("silver/cleaned_bees.csv")
     df_crops = pd.read_csv("silver/cleaned_crops.csv")
     df_bloomberg = pd.read_csv("silver/cleaned_bloomberg.csv")
+
+
     pearson_correlation(df_bees, df_crops, df_bloomberg)
 
 
 def pearson_correlation(df_bees,df_crops,df_bloomberg):
+    '''calc correlations between Crops with Bee/Bloomberg
+    Outputs: correlations from 0-1'''
 
     results = []
     crop_items = [item for item in df_crops["Item"].unique()]
