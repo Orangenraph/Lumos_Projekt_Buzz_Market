@@ -2,21 +2,16 @@ import pandas as pd
 import numpy as np
 
 def main():
-    bee_df = pd.read_csv("./data/FAOSTAT_bees.csv")
-    crops_df = pd.read_csv("./data/FAOSTAT_crops.csv")
-    bloomberg_df = pd.read_csv("./data/Bloomberg_Commodity_Historical_Data.csv")
+    bee_df = pd.read_csv("bronze/FAOSTAT_bees.csv")
+    crops_df = pd.read_csv("bronze/FAOSTAT_crops.csv")
+    bloomberg_df = pd.read_csv("bronze/Bloomberg_Commodity_Historical_Data.csv")
 
     cleaned_bee_df = clean_bee(bee_df)
     cleaned_bloomberg_df = clean_bloomberg(bloomberg_df)
     cleaned_crops_df = clean_crops(crops_df)
 
-
-
-
-
-
 def clean_bee(df):
-    '''clean the bee data'''
+    '''clean the bee bronze'''
 
     # put 0 and NaN in vlaues to  None
     df["Value"] = df["Value"].apply(lambda x: np.nan if pd.isna(x) or x == 0 else x)
@@ -53,15 +48,20 @@ def clean_bee(df):
     df["Year"] = df["Year"].astype(int)
     df["Bee_Values"] = df["Bee_Values"].astype(float)
 
-    df.to_csv("./cleaned_data/cleaned_bees", index=False)
+    df.to_csv("./silver/cleaned_bees.csv", index=False)
     return df
 
 def clean_bloomberg(df):
     ''' removes volume '''
     df = df[["Date","Price","Open","High","Low","Change %"]].copy()
     df["Date"] = pd.to_datetime(df["Date"])
+    df["Year"] = df["Date"].dt.year
+    df = (df.groupby("Year")["Price"]).mean().reset_index()
+    df["Price"] = df["Price"].round(2)
 
-    df.to_csv("./cleaned_data/cleaned_bloomberg", index=False)
+    df = df.rename(columns={"Price": "Commodity_Price"})
+
+    df.to_csv("./silver/cleaned_bloomberg.csv", index=False)
     return df
 
 
@@ -99,11 +99,11 @@ def clean_crops(df):
     #rename column
     df = df.rename(columns={"Value": "Crop_Values"})
 
-    #convert data types
+    #convert bronze types
     df["Year"] = df["Year"].astype(int)
     df["Crop_Values"] = df["Crop_Values"].astype(float)
 
-    df.to_csv("./cleaned_data/cleaned_crops", index=False)
+    df.to_csv("./silver/cleaned_crops.csv", index=False)
     return df
 
 

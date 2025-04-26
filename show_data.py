@@ -1,9 +1,9 @@
 import pandas as pd
 
 def main():
-    bee_df = pd.read_csv("data/FAOSTAT_bees.csv")
-    bloomberg_df = pd.read_csv("data/Bloomberg_Commodity_Historical_Data.csv")
-    crop_df = pd.read_csv("data/FAOSTAT_crops.csv")
+    bee_df = pd.read_csv("silver/cleaned_bees.csv")
+    bloomberg_df = pd.read_csv("silver/cleaned_bloomberg.csv")
+    crop_df = pd.read_csv("silver/cleaned_crops.csv")
 
 
     print("\n------------- Bee -------------")
