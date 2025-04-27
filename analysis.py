@@ -13,9 +13,6 @@ def main():
 
     pearson_correlation(df_bees, df_crops, df_bloomberg)
 
-
-
-
 def pearson_correlation(df_bees,df_crops,df_bloomberg):
     '''calc correlations between Crops with Bee/Bloomberg
     Outputs: correlations from 0-1'''
@@ -37,7 +34,7 @@ def pearson_correlation(df_bees,df_crops,df_bloomberg):
         # merg bees and prices
         df_merged = (df_wide.merge(df_bees, on=["Area", "Year"], how="outer").merge(df_bloomberg, on="Year", how="outer"))
 
-        df_merged.to_csv("test.csv")
+        #df_merged.to_csv("test.csv")
 
         # compute correlations Production
         bee_prod_corr = df_merged["Bee_Values"].corr(df_merged.get("Production"))
