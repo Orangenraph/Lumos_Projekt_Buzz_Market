@@ -14,11 +14,13 @@ def main():
     pearson_correlation(df_bees, df_crops, df_bloomberg)
 
 
+
+
 def pearson_correlation(df_bees,df_crops,df_bloomberg):
     '''calc correlations between Crops with Bee/Bloomberg
     Outputs: correlations from 0-1'''
-
     results = []
+
     crop_items = [item for item in df_crops["Item"].unique()]
     for item in crop_items:
         # filter for spefic item
@@ -30,10 +32,12 @@ def pearson_correlation(df_bees,df_crops,df_bloomberg):
             columns="Element",
             values="Crop_Values"
         ).reset_index())
+        #print(df_wide)
 
         # merg bees and prices
-        df_merged = (df_wide.merge(df_bees, on=["Area", "Year"], how="inner")
-                     .merge(df_bloomberg, on="Year", how="inner"))
+        df_merged = (df_wide.merge(df_bees, on=["Area", "Year"], how="outer").merge(df_bloomberg, on="Year", how="outer"))
+
+        df_merged.to_csv("test.csv")
 
         # compute correlations Production
         bee_prod_corr = df_merged["Bee_Values"].corr(df_merged.get("Production"))
@@ -43,12 +47,20 @@ def pearson_correlation(df_bees,df_crops,df_bloomberg):
         bee_area_corr = df_merged["Bee_Values"].corr(df_merged.get("Area harvested"))
         commodity_area_corr = df_merged["Commodity_Price"].corr(df_merged.get("Area harvested"))
 
+        bee_yield_corr = df_merged["Bee_Values"].corr(df_merged.get("Yield"))
+        commodity_yield_corr = df_merged["Commodity_Price"].corr(df_merged.get("Yield"))
+
+        bee_commodity_corr = df_merged["Commodity_Price"].corr(df_merged.get("Bee_Values"))
+
         results.append({
             "Item": item,
+            "bee_commodity_corr": bee_commodity_corr,
             "bee_prod_corr": bee_prod_corr,
-            "commodity_prod_corr": commodity_prod_corr,
             "bee_area_corr": bee_area_corr,
-            "commodity_area_corr": commodity_area_corr
+            "bee_yield_corr": bee_yield_corr,
+            "commodity_prod_corr": commodity_prod_corr,
+            "commodity_area_corr": commodity_area_corr,
+            "commodity_yield_corr": commodity_yield_corr,
         })
 
     # out of loop

@@ -4,59 +4,77 @@ import seaborn as sns
 import numpy as np
 
 # Read data from CSV file
-df = pd.read_csv("gold/corr_beeBloom_prodArea.csv")
+def main():
+    df_beeBloom = pd.read_csv("gold/corr_beeBloom_prodArea.csv")
 
-# Prepare data for visualization
-df_sorted = df.sort_values(by='bee_prod_corr', ascending=False)
+    plot_corr_heatmap(df_beeBloom)
 
-# Create figure
-plt.figure(figsize=(14, 10))
 
-# Main plot: Bee correlation vs. Commodity Price correlation for productivity
-plt.subplot(2, 1, 1)
-sns.barplot(x='Item', y='bee_prod_corr', data=df_sorted, color='gold', label='Bee Productivity Correlation')
-sns.barplot(x='Item', y='commodity_prod_corr', data=df_sorted, color='lightblue', alpha=0.7, label='Commodity Price Productivity Correlation')
+def plot_corr_heatmap(df):
+    df_sorted = df.sort_values(by='bee_prod_corr', ascending=False)
 
-plt.title('Correlation Between Bees/Commodity Prices and Productivity by Crop', fontsize=16)
-plt.ylabel('Correlation Coefficient', fontsize=12)
-plt.xticks(rotation=45, ha='right')
-plt.legend(loc='best')
-plt.grid(axis='y', linestyle='--', alpha=0.7)
+    # --- Barplots ---
+    fig, axes = plt.subplots(2, 1, figsize=(max(14, len(df) * 1.2), 12))
 
-# Second plot: Bee correlation vs. Commodity Price correlation for cultivation area
-plt.subplot(2, 1, 2)
-sns.barplot(x='Item', y='bee_area_corr', data=df_sorted, color='orange', label='Bee Area Correlation')
-sns.barplot(x='Item', y='commodity_area_corr', data=df_sorted, color='skyblue', alpha=0.7, label='Commodity Price Area Correlation')
+    # Plot 1: Productivity Correlations
+    sns.barplot(ax=axes[0], x='Item', y='bee_prod_corr', data=df_sorted, color='gold', label='Bee Productivity Corr')
+    sns.barplot(ax=axes[0], x='Item', y='commodity_prod_corr', data=df_sorted, color='lightblue', alpha=0.7,
+                label='Commodity Productivity Corr')
+    axes[0].set_title('Correlation Between Bees/Commodity Prices and Productivity by Crop', fontsize=16)
+    axes[0].set_ylabel('Correlation Coefficient', fontsize=12)
+    axes[0].legend(loc='best')
+    axes[0].grid(axis='y', linestyle='--', alpha=0.7)
+    axes[0].set_xticklabels(df_sorted['Item'], rotation=45, ha='right')
 
-plt.title('Correlation Between Bees/Commodity Prices and Cultivation Area by Crop', fontsize=16)
-plt.ylabel('Correlation Coefficient', fontsize=12)
-plt.xlabel('Crop Type', fontsize=12)
-plt.xticks(rotation=45, ha='right')
-plt.legend(loc='best')
-plt.grid(axis='y', linestyle='--', alpha=0.7)
+    # Plot 2: Area Correlations
+    sns.barplot(ax=axes[1], x='Item', y='bee_area_corr', data=df_sorted, color='orange', label='Bee Area Corr')
+    sns.barplot(ax=axes[1], x='Item', y='commodity_area_corr', data=df_sorted, color='skyblue', alpha=0.7,
+                label='Commodity Area Corr')
+    axes[1].set_title('Correlation Between Bees/Commodity Prices and Cultivation Area by Crop', fontsize=16)
+    axes[1].set_ylabel('Correlation Coefficient', fontsize=12)
+    axes[1].set_xlabel('Crop Type', fontsize=12)
+    axes[1].legend(loc='best')
+    axes[1].grid(axis='y', linestyle='--', alpha=0.7)
+    axes[1].set_xticklabels(df_sorted['Item'], rotation=45, ha='right')
 
-plt.tight_layout()
-plt.savefig('png/bee_commodity_correlation.png', dpi=300)
-plt.show()
+    plt.tight_layout()
+    plt.savefig('png/bee_commodity_correlation.png', dpi=300)
+    plt.show()
 
-# Heatmap with custom color scheme
-plt.figure(figsize=(12, 8))
-corr_data = df.set_index('Item')[['bee_prod_corr', 'commodity_prod_corr', 'bee_area_corr', 'commodity_area_corr']].T
-# Rename the index for clarity in the heatmap
-corr_data.index = ['Bee-Productivity Corr', 'Commodity-Productivity Corr',
-                   'Bee-Area Corr', 'Commodity-Area Corr']
+    # --- Heatmap ---
+    plt.figure(figsize=(max(12, len(df) * 1.1), 8))
 
-# Color parameter - change these values to modify colors
-# First number (10) is for values near 0 (currently red)
-# Second number (220) is for values near 1 (currently blue)
-cmap = sns.diverging_palette(20, 260, as_cmap=True)
+    # Neue Reihenfolge: Erst alle Bee-Spalten, dann alle Commodity-Spalten
+    corr_data = df.set_index('Item')[[
+        'bee_commodity_corr',
+        'bee_prod_corr',
+        'bee_area_corr',
+        'bee_yield_corr',
+        'commodity_prod_corr',
+        'commodity_area_corr',
+        'commodity_yield_corr',
+    ]].T
 
-# Scale parameters
-vmin = min(corr_data.min().min(), 0)
-vmax = max(corr_data.max().max(), 1)
+    # Labels entsprechend der neuen Reihenfolge
+    corr_data.index = [
+        'Bee-Commodity',
+        'Bee-Productivity',
+        'Bee-Area',
+        'Bee-Yield',
+        'Commodity-Productivity',
+        'Commodity-Area',
+        'Commodity-Yield',
+    ]
 
-sns.heatmap(corr_data, annot=True, cmap=cmap, vmin=vmin, vmax=vmax, fmt=".2f")
-plt.title('Correlation Coefficients: Bee Activity vs. Commodity Prices', fontsize=16)
-plt.tight_layout()
-plt.savefig('png/correlation_heatmap.png', dpi=300)
-plt.show()
+    cmap = sns.diverging_palette(20, 260, as_cmap=True)
+    vmin = min(corr_data.min().min(), 0)
+    vmax = max(corr_data.max().max(), 1)
+
+    sns.heatmap(corr_data, annot=True, cmap=cmap, vmin=vmin, vmax=vmax, fmt=".2f", linewidths=0.5, cbar_kws={"shrink": 0.8})
+    plt.title('Correlation Coefficients: Bee Population and Commodity Prices', fontsize=16)
+    plt.tight_layout()
+    plt.savefig('png/correlation_heatmap.png', dpi=300)
+    plt.show()
+
+if __name__ == '__main__':
+    main()
