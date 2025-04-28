@@ -1,14 +1,20 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
+import numpy as np
 
+from matplotlib.patches import Rectangle
+import seaborn as sns
 
 # Read data from CSV file
 def main():
     df_bee = pd.read_csv("silver/cleaned_bees.csv")
+    df_bloom = pd.read_csv("bronze/Bloomberg_Commodity_Historical_Data.csv")
     df_beeBloom = pd.read_csv("gold/corr_beeBloom_prodArea.csv")
 
-    plot_bee_population_growth_by_continent(df_bee)
+
+    #plot_bee_population_growth_by_continent(df_bee)
+    plot_bloom(df_bloom)
+
     #plot_flags(df_bee)
     #plot_corr_heatmap(df_beeBloom)
 
@@ -52,10 +58,69 @@ def plot_bee_population_growth_by_continent(df):
 
 # plt.savefig("png/bee_population_growth_by_continent_LINEPLOT.png")
 
-def plot_bloom():
-    ...
+def plot_bloom(df):
 
-    '''TODO: Simple Linechart '''
+    # convert date
+    df['Date'] = pd.to_datetime(df['Date'], format='%m/%d/%Y')
+    df['Year'] = df['Date'].dt.year
+    df = df.sort_values('Date')
+
+    fig, ax = plt.subplots(figsize=(16, 8))
+
+    # widh candles
+    width = 0.6
+
+    # draw candles with color
+    for i, (idx, row) in enumerate(df.iterrows()):
+        if row['Open'] < row['Price']:  # up
+            color = 'darkgreen'
+        else:  # down
+            color = 'red'
+
+        body_bottom = min(row['Open'], row['Price'])
+        body_height = abs(row['Price'] - row['Open'])
+
+        rect = Rectangle(
+            xy=(i - width / 2, body_bottom),
+            width=width,
+            height=body_height,
+            facecolor=color,
+            edgecolor=color,
+            alpha=1
+        )
+        ax.add_patch(rect)
+
+        # draw wicks
+        ax.plot([i, i], [row['Low'], row['High']], color='black', linewidth=1)
+
+    # x on 5 year intervall
+    unique_years = sorted(df['Year'].unique())
+    five_year_ticks = [year for year in unique_years if year % 5 == 0]
+
+    # posisitons for the years
+    tick_positions = []
+    for year in five_year_ticks:
+        year_data = df[df['Year'] == year]
+        if not year_data.empty:
+            first_idx_in_year = list(df[df['Year'] == year].index)[0]
+            position = df.index.get_loc(first_idx_in_year)
+            tick_positions.append(position)
+
+    plt.xticks(tick_positions, five_year_ticks)
+    plt.title('Bloomberg Candlestick Chart')
+    plt.xlabel('Year')
+    plt.ylabel('Price')
+    plt.grid(True, alpha=0.3)
+
+    # MA
+    df['MA10'] = df['Price'].rolling(window=10).mean()
+
+    x_values = range(len(df))
+    plt.plot(x_values, df['MA10'].values, color='gray', linewidth=1, label='10-Day MA')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig('png/bloomberg_candlestick.png', dpi=300)
+    plt.show()
 
 def plot_overlying_beeBloom():
     ...
