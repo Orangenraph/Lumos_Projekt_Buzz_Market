@@ -1,20 +1,56 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import numpy as np
+
 
 # Read data from CSV file
 def main():
+    df_bee = pd.read_csv("silver/cleaned_bees.csv")
     df_beeBloom = pd.read_csv("gold/corr_beeBloom_prodArea.csv")
 
-    plot_corr_heatmap(df_beeBloom)
+    plot_bee_population_growth_by_continent(df_bee)
+    #plot_flags(df_bee)
+    #plot_corr_heatmap(df_beeBloom)
 
 
-def plot_bee_population_growth():
-    ...
+def plot_bee_population_growth_by_continent(df):
+    continent_bees = df.groupby(["Year", "Continent"])["Bee_Values"].sum().unstack()
 
-    ''' TODO: Simple Barplot'''
+    plt.figure(figsize=(16, 8))
 
+    continent_bees.plot(kind='bar', stacked=True, ax=plt.gca(), figsize=(16, 8))
+
+    plt.xlabel("Year")
+    plt.ylabel("Total Bee Population")
+    plt.title("Total Bee Population by Continent Over Time")
+    plt.legend(title="Continent")
+    plt.tight_layout()
+    plt.savefig("png/bee_population_growth_by_continent_BARPLOT.png")
+    plt.show()
+
+
+    '''
+    continent_bees = df.groupby(["Year", "Continent"])["Bee_Values"].sum().unstack()
+    global_bees = df.groupby("Year")["Bee_Values"].sum()
+
+    plt.figure(figsize=(16, 8))
+
+    for continent in continent_bees.columns:
+        plt.plot(continent_bees[continent], label=continent)
+
+    plt.plot(global_bees.index, global_bees.values, label="Global", color='black', linestyle='--', )
+
+    plt.xlabel("Year")
+    plt.ylabel("Total Bee Population")
+    plt.title("Total Bee Population by Continent Over Time")
+    plt.legend(title="Continent")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig("png/bee_population_growth_by_continent_LINEPLOT.png")
+    plt.show()
+    '''
+
+# plt.savefig("png/bee_population_growth_by_continent_LINEPLOT.png")
 
 def plot_bloom():
     ...
@@ -24,6 +60,20 @@ def plot_bloom():
 def plot_overlying_beeBloom():
     ...
     '''TODO: Bee, Bloom in one Line chart '''
+
+
+def plot_flags(df):
+
+    total_flags = df["Flag Description"].value_counts()
+
+    fig, ax = plt.subplots(figsize=(9,9))
+    wedges, texts = ax.pie(total_flags, labels=None)
+
+    ax.legend(wedges, total_flags.index, title="Flag Description", loc="best", bbox_to_anchor=(1, 0.5))
+    plt.tight_layout()
+    plt.savefig("png/flags.png")
+    plt.show()
+
 
 
 def plot_corr_heatmap(df):

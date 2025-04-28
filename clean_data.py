@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 
+from helpers import continent_map
+
 def main():
     bee_df = pd.read_csv("bronze/FAOSTAT_bees.csv")
     crops_df = pd.read_csv("bronze/FAOSTAT_crops.csv")
@@ -41,8 +43,11 @@ def clean_bee(df):
     fill_values = df.groupby('Area')['Value'].transform('mean')
     df.loc[:, 'Value'] = df['Value'].fillna(fill_values)
 
+    # add continent
+    df["Continent"] = df["Area"].map(continent_map)
+
     # only pick the columns we need & rename
-    df = df[["Area", "Value", "Year", "Flag Description"]].rename(columns={"Value": "Bee_Values"})
+    df = df[["Area", "Value", "Year", "Continent", "Flag Description"]].rename(columns={"Value": "Bee_Values"})
 
     # typecast columns
     df["Year"] = df["Year"].astype(int)
