@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from helpers import continent_map
+from helpers import continent_map, continent_map_large
 
 def main():
     bee_df = pd.read_csv("bronze/FAOSTAT_bees.csv")
@@ -76,9 +76,13 @@ def clean_bloomberg(df):
 
 
 def clean_crops(df):
+    # add continent
+    df = df.copy()
+
+    df["Continent"] = df["Area"].map(continent_map_large)
 
     #only take columns we need
-    df = df[["Area","Item","Value", "Element", "Year","Flag Description"]].copy()
+    df = df[["Area","Item","Value", "Element", "Year","Continent", "Flag Description"]]
 
     # replace 0 or None with NA
     df["Value"] = df["Value"].apply(lambda x: np.nan if pd.isna(x) or x == 0 else x)

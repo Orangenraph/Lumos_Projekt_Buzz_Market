@@ -1,0 +1,60 @@
+,Continent,Item,Crop_Values
+9,Africa,Wheat,1549654537.7937114
+8,Africa,Sunflower seed,124842715.46051429
+5,Africa,"Pumpkins, squash and gourds",101143960.3811313
+1,Africa,Apples,76061478.57
+4,Africa,Cucumbers and gherkins,43158056.735242076
+0,Africa,"Almonds, in shell",16729806.63
+6,Africa,Rape or colza seed,4643404.32
+7,Africa,Strawberries,791027.81
+3,Africa,Cherries,248265.86
+2,Africa,Blueberries,22560.6
+20,Asia,Wheat,25301349871.23
+14,Asia,Cucumbers and gherkins,3372658528.011579
+11,Asia,Apples,2754310374.63
+16,Asia,Rape or colza seed,2248563194.540538
+15,Asia,"Pumpkins, squash and gourds",787850310.5875438
+19,Asia,Sunflower seed,427072057.78
+13,Asia,Cherries,40226934.172380954
+18,Asia,Strawberries,38690534.33
+10,Asia,"Almonds, in shell",28958214.86579533
+17,Asia,Raspberries,689956.78
+31,Europe,Wheat,16765900738.808947
+30,Europe,Sunflower seed,1662036109.65
+27,Europe,Rape or colza seed,981401234.8739394
+22,Europe,Apples,837149539.7
+25,Europe,Cucumbers and gherkins,433667719.98
+26,Europe,"Pumpkins, squash and gourds",173994779.32
+29,Europe,Strawberries,84215779.19856353
+21,Europe,"Almonds, in shell",68512492.8
+24,Europe,Cherries,48754128.185202315
+28,Europe,Raspberries,22553501.539979037
+42,North America,Wheat,7214796444.58082
+38,North America,Rape or colza seed,704858936.9
+33,North America,Apples,326699384.28
+41,North America,Sunflower seed,124514480.1
+36,North America,Cucumbers and gherkins,103737657.45
+40,North America,Strawberries,63680610.19
+32,North America,"Almonds, in shell",56728586.2
+37,North America,"Pumpkins, squash and gourds",50857794.79
+35,North America,Cherries,15400640.1
+34,North America,Blueberries,13490930.7
+51,Oceania,Wheat,1761075361.79
+47,Oceania,Rape or colza seed,142775714.66916665
+43,Oceania,Apples,47661447.22
+46,Oceania,"Pumpkins, squash and gourds",14516391.43
+50,Oceania,Sunflower seed,11078344.5
+45,Oceania,Cucumbers and gherkins,4978674.620606061
+49,Oceania,Strawberries,3494546.09
+44,Oceania,Cherries,1371030.6
+48,Oceania,Raspberries,598771.89
+61,South America,Wheat,1653689439.84
+60,South America,Sunflower seed,309492478.5249425
+52,South America,Apples,105278063.52
+56,South America,"Pumpkins, squash and gourds",47905838.09
+55,South America,Cucumbers and gherkins,10069840.9
+57,South America,Rape or colza seed,9051120.98
+54,South America,Cherries,4697029.29
+59,South America,Strawberries,3523953.25
+53,South America,Blueberries,2062225.8147474746
+58,South America,Raspberries,821299.7004040404
