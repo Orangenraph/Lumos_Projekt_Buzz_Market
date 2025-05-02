@@ -6,11 +6,13 @@ from helpers import continent_map, continent_map_large
 def main():
     bee_df = pd.read_csv("bronze/FAOSTAT_bees.csv")
     crops_df = pd.read_csv("bronze/FAOSTAT_crops.csv")
+    crops3_df = pd.read_csv("bronze/FAOSTAT_crops3.csv")
     bloomberg_df = pd.read_csv("bronze/Bloomberg_Commodity_Historical_Data.csv")
 
     cleaned_bee_df = clean_bee(bee_df)
     cleaned_bloomberg_df = clean_bloomberg(bloomberg_df)
     cleaned_crops_df = clean_crops(crops_df)
+    cleaned_crops3_df = clean_crops3(crops3_df)
 
 def clean_bee(df):
     '''clean the bee bronze'''
@@ -117,6 +119,50 @@ def clean_crops(df):
     df["Crop_Values"] = df["Crop_Values"].astype(float)
 
     df.to_csv("./silver/cleaned_crops.csv", index=False)
+    return df
+
+def clean_crops3(df):
+    # add continent
+    df = df.copy()
+
+    df["Continent"] = df["Area"].map(continent_map_large)
+
+    #only take columns we need
+    df = df[["Area","Item","Value", "Element", "Year","Continent", "Flag Description"]]
+
+    # replace 0 or None with NA
+    df["Value"] = df["Value"].apply(lambda x: np.nan if pd.isna(x) or x == 0 else x)
+
+    missing_stats = df.groupby(["Area", "Item"])["Value"].agg(
+        missing=lambda x: x.isnull().sum(),
+        not_missing=lambda x: x.notna().sum(),
+        total="count"
+    ).reset_index()
+
+    # calc percentage
+    missing_stats["missing_percent"] = round((missing_stats["missing"] / missing_stats["total"]) * 100, 2)
+
+    # find combinations of Area and Element with more 10% missing
+    to_drop = missing_stats[missing_stats["missing_percent"] > 10][["Area", "Item"]].values.tolist()
+
+    temp = df.shape[0]
+    df = df[~df.apply(lambda row: [row["Area"], row["Item"]] in to_drop, axis=1)]
+
+    dropped_rows = temp - df.shape[0]
+    print(f"{dropped_rows} rows were dropped. Area-Item (>10% missing): {to_drop}")
+
+    # fill missing values with mean value
+    fill_values = df.groupby(["Area", "Item"])['Value'].transform('mean')
+    df.loc[:, 'Value'] = df['Value'].fillna(fill_values)
+
+    #rename column
+    df = df.rename(columns={"Value": "Crop_Values"})
+
+    #convert bronze types
+    df["Year"] = df["Year"].astype(int)
+    df["Crop_Values"] = df["Crop_Values"].astype(float)
+
+    df.to_csv("./silver/cleaned_crops3.csv", index=False)
     return df
 
 
