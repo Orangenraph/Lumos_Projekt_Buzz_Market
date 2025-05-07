@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 
-from Lumos.Anna.analysis2 import country
 from helpers import continent_map, continent_map_large
 
 def main():
@@ -10,17 +9,16 @@ def main():
     agro_df = pd.read_csv("bronze/agro.csv",delimiter=';')
 
 
-    #clean_bee(bee_df)
-    clean_crops(crops_df)
+    clean_bee(bee_df)
+    clean_bee_austria(bee_df)
 
-    #clean_bee_austria(bee_df)
-    #clean_crops_austria(crops_df)
+    clean_crops(crops_df)
+    clean_crops_austria(crops_df)
 
     clean_agro(agro_df)
 
 def clean_bee(df):
     '''clean the bee bronze'''
-
     # put 0 and NaN in vlaues to  None
     df["Value"] = df["Value"].apply(lambda x: np.nan if pd.isna(x) or x == 0 else x)
 
@@ -241,10 +239,3 @@ def clean_agro(df):
 
 if __name__ == '__main__':
     main()
-
-
-if country.missing_data > 10%:
-    remove(country)
-
-if country.missing_data == True:
-    country.missing_data = country.mean

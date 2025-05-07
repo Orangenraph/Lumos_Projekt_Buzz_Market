@@ -14,66 +14,76 @@ color_palette = [
         '#344F6A'
     ]
 
-# Read data from CSV file
 def main():
     df_bee = pd.read_csv("silver/cleaned_bees_global.csv")
-    df_agro = pd.read_csv("silver/cleaned_agro.csv")
-    df_lr = pd.read_csv("gold/regression_analysis_lr.csv")
+    #df_agro = pd.read_csv("silver/cleaned_agro.csv")
+    #df_crops = pd.read_csv("silver/cleaned_crops_europe.csv.csv")
+    #df_lr = pd.read_csv("gold/regression_analysis_lr.csv")
     #df_bloom = pd.read_csv("bronze/Bloomberg_Commodity_Historical_Data.csv")
-    #df_crops = pd.read_csv("silver/cleaned_crops.csv")
+    #df_corr = pd.read_csv("gold/corr_Crops_Bees_europe.csv")
 
+    #plot_bee_population_growth_by_continent_line(df_bee)
+    #plot_legend_only(df_bee)
 
-    #df_top_items = pd.read_csv("gold/top_10_items_per_continent.csv")
-
-    df_corr = pd.read_csv("gold/corr_Crops_Bees_europe.csv")
-
-
-
-    #plot_bee_population_growth_by_continent_barplot(df_bee)
     #plot_flags_pie(df_bee)
-    visualize_data_with_fstat()
+    #visualize_data_with_fstat()
+    #plot_three_quarter_pie()
 
-    #plot_corr_barplot(df_beeBloom, "Global")
     #plot_corr_heatmap(df_corr,"Europe")
 
 
-def plot_bee_population_growth_by_continent_barplot(df):
-
+def plot_bee_population_growth_by_continent_line(df):
     continent_bees = df.groupby(["Year", "Continent"])["Bee_Values"].sum().unstack()
-    global_bees = df.groupby("Year")["Bee_Values"].sum()
 
     plt.figure(figsize=(16, 8))
 
-    # Erstelle den Plot mit den neuen Farben
     for i, continent in enumerate(continent_bees.columns):
         plt.plot(continent_bees[continent],
-                 label=continent,
                  color=color_palette[i % len(color_palette)],
-                 # Verwende modulo für den Fall von mehr Kontinenten als Farben
                  linewidth=2.5)
 
-    plt.xlabel("Year", fontsize=12)
-    plt.ylabel("Total Bee Population", fontsize=12)
-    plt.title("Total Bee Population by Continent Over Time", fontsize=14, pad=20)
-
-    # Verbessere die Legende
-    plt.legend(title="Continent",
-               title_fontsize=12,
-               fontsize=10,
-               framealpha=1,
-               facecolor='white')
-
-    # Style-Anpassungen
-    plt.grid(True, linestyle='--', alpha=0.7)
-    plt.xticks(fontsize=10)
-    plt.yticks(fontsize=10)
-
-    # Rahmen entfernen
-    for spine in plt.gca().spines.values():
-        spine.set_visible(False)
+    plt.axis('off')
+    plt.grid(False)
+    plt.gca().set_facecolor('none')
+    plt.gcf().patch.set_alpha(0.0)
 
     plt.tight_layout()
-    plt.savefig("png/01_bee_population_growth_by_continent_LINEPLOT.png", dpi=300, bbox_inches='tight')
+    plt.savefig("png/01_bee_population_growth_by_continent_LINEPLOT.png", dpi=300, bbox_inches='tight',
+                transparent=True)
+    plt.show()
+
+def plot_legend_only(df):
+    continent_bees = df.groupby(["Year", "Continent"])["Bee_Values"].sum().unstack()
+
+    plt.figure(figsize=(4, 2))
+
+
+    handles = []
+    labels = []
+    for i, continent in enumerate(continent_bees.columns):
+        handle, = plt.plot([], [],
+                           color=color_palette[i % len(color_palette)],
+                           linewidth=2.5,
+                           label=continent)
+        handles.append(handle)
+        labels.append(continent)
+
+
+    legend = plt.legend(handles=handles,
+                        labels=labels,
+                        title="Continent",
+                        title_fontsize=12,
+                        fontsize=10,
+                        framealpha=1,
+                        facecolor='white',
+                        loc='center')
+
+    plt.axis('off')
+    plt.gca().set_facecolor('none')
+    plt.gcf().patch.set_alpha(0.0)
+
+    plt.tight_layout()
+    plt.savefig("png/legend_only.png", dpi=300, bbox_inches='tight', transparent=True)
     plt.show()
 
 
@@ -82,14 +92,12 @@ def plot_flags_pie(df):
 
     fig, ax = plt.subplots(figsize=(9, 9))
 
-    # Verwende die Farbpalette für die Tortensegmente
     wedges, texts = ax.pie(total_flags,
                            labels=None,
                            colors=color_palette[:len(total_flags)],
                            startangle=90,
                            wedgeprops={'linewidth': 1, 'edgecolor': 'white'})
 
-    # Verbessere die Legende
     ax.legend(wedges,
               total_flags.index,
               title="Flag Description",
@@ -98,12 +106,10 @@ def plot_flags_pie(df):
               fontsize=10,
               title_fontsize=12)
 
-    # Titel hinzufügen
     plt.title("Distribution of Flag Descriptions",
               fontsize=14,
               pad=20)
 
-    # Style-Verbesserungen
     plt.setp(texts, size=10, weight="bold")
 
     plt.tight_layout()
@@ -131,13 +137,11 @@ def plot_corr_barplot(df, continent):
 def plot_corr_heatmap(df, continent):
     plt.figure(figsize=(max(12, len(df) * 1.1), 8))
 
-    # Neue Reihenfolge: Erst alle Bee-Spalten, dann alle Commodity-Spalten
     corr_data = df.set_index('Item')[[
         'bee_prod_corr',
         'bee_area_corr',
     ]].T
 
-    # Labels entsprechend der neuen Reihenfolge
     corr_data.index = [
         'Bee-Productivity',
         'Bee-Area Harvested',
@@ -155,25 +159,23 @@ def plot_corr_heatmap(df, continent):
 
 
 def visualize_data_with_fstat():
-    mu = 0  # Mittelwert
-    sigma = 1  # Standardabweichung
-    t_stat = 1.420  # Deine t-Statistik
-    critical_value = 1.645  # Kritischer Wert für α = 0.05 (einseitiger Test, Normalverteilung)
+    mu = 0
+    sigma = 1
+    t_stat = 1.420
+    critical_value = 1.645
 
-    # X-Werte für die Normalverteilungskurve
     x = np.linspace(-4, 4, 1000)
     y = norm.pdf(x, mu, sigma)
 
     # Erstelle den Plot
     plt.figure(figsize=(8, 4))
-    plt.plot(x, y, color='#7286B7', label='Normal distribution (H₀)')  # Normalverteilungskurve
+    plt.plot(x, y, color='#7286B7', label='Normal distribution (H₀)')
     plt.fill_between(x, 0, y, where=(x >= critical_value), color='red', alpha=0.5,
-                     label='Significant Area (p < 0.05)')  # Signifikanter Bereich
+                     label='Significant Area (p < 0.05)')
 
-    plt.axvline(x=0, color='#7286B7', linestyle='--')  # Vertikale Linie bei 0
+    plt.axvline(x=0, color='#7286B7', linestyle='--')
     plt.axvline(x=t_stat, color='white', linestyle='--', label='T-Statistics (1.420)')
 
-    # Achsen und Titel
     plt.xlabel('')
     plt.ylabel('')
     plt.title('Normalverteilung mit Signifikanzniveau (α = 0.05)')
@@ -182,6 +184,24 @@ def visualize_data_with_fstat():
     plt.grid(False)
     plt.savefig("png/03_linear_regression.png", transparent=True, dpi=300)
     plt.show()
+
+
+def plot_three_quarter_pie():
+    sizes = [75,25]
+
+    fig, ax = plt.subplots(figsize=(9, 9))
+
+    wedges, texts = ax.pie(sizes,
+                           labels=None,
+                           colors=color_palette[:len(sizes)],
+                           startangle=90,
+                           wedgeprops={'linewidth': 1, 'edgecolor': 'white'})
+
+    plt.tight_layout()
+    plt.savefig("png/01_three_quarter.png", dpi=300, bbox_inches='tight', transparent=True,)
+    plt.show()
+
+
 
 if __name__ == '__main__':
     main()
